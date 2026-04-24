@@ -55,14 +55,20 @@ func NumSamples(fname string) (numSamples int64, sampleRate int64, err error) {
 }
 
 func Concatenate(fnames []string) (fname2 string, err error) {
-	f, err := ioutil.TempFile(".", "concat")
+	f, err := ioutil.TempFile(os.TempDir(), "concat")
 	for _, fname := range fnames {
-		f.WriteString(fmt.Sprintf("file '%s'\n", fname))
+		// ensure absolute path so ffmpeg can find the file regardless of cwd
+		absFname, errAbs := filepath.Abs(fname)
+		if errAbs != nil {
+			absFname = fname
+		}
+		f.WriteString(fmt.Sprintf("file '%s'\n", absFname))
 	}
 	f.Close()
-	_, fname2 = filepath.Split(fnames[0])
-	fname2 = fname2 + "concat.wav"
-	cmd := []string{"-y", "-f", "concat", "-i", f.Name(), fname2}
+	_, base := filepath.Split(fnames[0])
+	fname2 = filepath.Join(os.TempDir(), base+"concat.wav")
+	// -safe 0 allows absolute paths in the concat list
+	cmd := []string{"-y", "-f", "concat", "-safe", "0", "-i", f.Name(), fname2}
 	logger.Debug(cmd)
 	out, err := exec.Command("ffmpeg", cmd...).CombinedOutput()
 	if err != nil {
@@ -76,15 +82,89 @@ func Concatenate(fnames []string) (fname2 string, err error) {
 }
 
 func ToMono(fname string) (fname2 string, err error) {
-	_, fname2 = filepath.Split(fname)
+	_, base := filepath.Split(fname)
 	// Create safe filenames to make ffmpeg concat happy
-	fname2 = strings.ReplaceAll(fname2, " ", "-") + ".mono.wav"
+	base = strings.ReplaceAll(base, " ", "-") + ".mono.wav"
+	fname2 = filepath.Join(os.TempDir(), base)
 	cmd := []string{"-y", "-i", fname, "-ss", "0", "-to", "12", "-ar", "44100", "-ac", "1", fname2}
 	logger.Debug(cmd)
 	out, err := exec.Command("ffmpeg", cmd...).CombinedOutput()
 	if err != nil {
 		logger.Errorf("ffmpeg: %s", out)
 		return
+	}
+	return
+}
+
+// ToWav converts audio to WAV (mono or stereo) at 44100 Hz, capped at 12s.
+func ToWav(fname string, forceMono bool) (fname2 string, err error) {
+	_, base := filepath.Split(fname)
+	// strip extension and sanitize: replace spaces and dots so ffmpeg concat accepts the filename
+	base = strings.TrimSuffix(base, filepath.Ext(base))
+	base = strings.ReplaceAll(base, " ", "_")
+	base = strings.ReplaceAll(base, ".", "_")
+	base = base + "_conv.wav"
+	fname2 = filepath.Join(os.TempDir(), base)
+	var cmd []string
+	if forceMono {
+		cmd = []string{"-y", "-i", fname, "-ss", "0", "-to", "12", "-ar", "44100", "-ac", "1", fname2}
+	} else {
+		cmd = []string{"-y", "-i", fname, "-ss", "0", "-to", "12", "-ar", "44100", fname2}
+	}
+	logger.Debug(cmd)
+	out, err := exec.Command("ffmpeg", cmd...).CombinedOutput()
+	if err != nil {
+		logger.Errorf("ffmpeg: %s", out)
+		return
+	}
+	return
+}
+
+// ToWavHalfSpeed converts audio to WAV (mono or stereo) and, if duration > thresholdSec,
+// speeds it up 2x using atempo (no pitch shift) so it fits in half the time.
+func ToWavHalfSpeed(fname string, thresholdSec float64, forceMono bool) (fname2 string, err error) {
+	_, base := filepath.Split(fname)
+	// strip extension and sanitize: replace spaces and dots so ffmpeg concat accepts the filename
+	base = strings.TrimSuffix(base, filepath.Ext(base))
+	base = strings.ReplaceAll(base, " ", "_")
+	base = strings.ReplaceAll(base, ".", "_")
+	base = base + "_conv.wav"
+	fname2 = filepath.Join(os.TempDir(), base)
+
+	// First get duration via ffprobe
+	probeOut, errProbe := exec.Command("ffprobe", "-v", "quiet",
+		"-show_entries", "format=duration",
+		"-of", "default=noprint_wrappers=1:nokey=1",
+		fname).Output()
+	var duration float64
+	if errProbe == nil {
+		fmt.Sscanf(strings.TrimSpace(string(probeOut)), "%f", &duration)
+	}
+
+	channels := []string{}
+	if forceMono {
+		channels = []string{"-ac", "1"}
+	}
+
+	var cmd []string
+	if duration > thresholdSec && duration > 0 {
+		// Halve the sample rate: sample becomes half as long, pitch goes up one octave.
+		// On OP-Z: pitch down one octave → original length and pitch restored.
+		// No algorithm, no quality loss – pure sample rate reinterpretation.
+		// asetrate reinterprets at 22050 Hz, aresample writes at 22050 Hz, cap at 12s.
+		base := []string{"-y", "-i", fname, "-ss", "0", "-to", "12",
+			"-af", "asetrate=22050,aresample=22050"}
+		cmd = append(base, channels...)
+		cmd = append(cmd, fname2)
+	} else {
+		base := []string{"-y", "-i", fname, "-ss", "0", "-to", "12", "-ar", "44100"}
+		cmd = append(base, channels...)
+		cmd = append(cmd, fname2)
+	}
+	logger.Debug(cmd)
+	out, err := exec.Command("ffmpeg", cmd...).CombinedOutput()
+	if err != nil {
+		logger.Errorf("ffmpeg: %s", out)
 	}
 	return
 }

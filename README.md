@@ -1,6 +1,29 @@
-# teoperator
+# teoperator (OP-Z Edition)
 
-*teoperator* lets you easily make drum and synth patches for the op-1 or op-z. You don't need this software to use *teoperator* - you can use most of the functionality via [teoperator.com](https://teoperator.com). You can also use this software via a command-line program that gives you more functionality - to create a variety of patches from any number of music files (wav, aif, mp3, flac all supported). I did a [write-up of how it works](https://schollz.com/blog/op1/), basically I had to reverse engineer pieces of the metadata in the op-1 and op-z patches. 
+*teoperator* lets you easily make drum and synth patches for the teenage engineering op-1 or op-z. 
+
+This is an extended fork of the original [teoperator](https://github.com/schollz/teoperator) by infinitedigits, specifically optimized for the **teenage engineering OP-Z**. It adds powerful batch processing features, automatic kit splitting, and a unique "compress" mode to bypass the OP-Z's strict sample length limits.
+
+## New OP-Z Features
+
+### 1. Multi-File Upload & Batch Processing
+Upload as many audio files as you want at once. The tool automatically processes them based on your selected patch type:
+
+*   **Drum Kits:** The OP-Z limits drum kits to a maximum of 24 splices and 12 seconds total duration. When you upload multiple files (e.g., 60 drum samples), the tool automatically groups them and generates as many `.aif` drum kits as needed, perfectly respecting both limits. You get multiple ready-to-use kits to drop onto your OP-Z.
+*   **Synth Patches:** Each uploaded file is converted into its own individual `.aif` synth patch. All patches are then bundled into a single `.zip` file for easy downloading.
+
+### 2. Compress Mode (Double Playback Length)
+The OP-Z has strict sample length limits: 12 seconds for a drum kit and 5.75 seconds for a synth patch. The **Compress Mode** allows you to effectively double these limits for any sample longer than 1 second.
+
+When enabled, the tool halves the sample rate of the audio (from 44.1 kHz to 22.05 kHz). This makes the sample play twice as fast and one octave higher, fitting twice as much audio into the same time limit. 
+
+**How to use it on the OP-Z:**
+1. Load the compressed patch onto your OP-Z.
+2. Set the pitch parameter of the track to **-1 octave**.
+3. The original pitch is restored, and you effectively get **double the playback length** out of each slot (up to 24 seconds for drum kits, and ~11.5 seconds for synth patches). This is incredibly useful for longer loops, pads, or textures.
+
+### 3. Mobile-First UI Redesign
+The entire user interface has been redesigned from the ground up with a mobile-first approach. It features a clean, dark-mode aesthetic, large touch targets, clear section labels, and a prominent multi-upload area. The results page now includes a modern waveform display and an integrated audio player for previewing your patches before downloading.
 
 ## Installation
 
@@ -14,7 +37,7 @@ go get -v github.com/schollz/teoperator@latest
 
 That will install `teoperator` on your system.
 
-## Usage
+## Usage (Command Line)
 
 You can use *teoperator* to create drum patches or sample-based synth patches for the op-1 or op-z. The resulting file is a `.aif` converted to mono 44.1khz with metadata representing key-assignment information for the op-1 or op-z. You can use any kind of input music file (wav, aif, mp3, flac, etc.).
 
@@ -56,12 +79,7 @@ To make a drum loop patch you can convert one sample and define splice points to
 teoperator drum --slices 16 drumloop.wav
 ```
 
-## Web server ([teoperator.com](https://teoperator.com))
-
-<p align="center">
-<a href="https://op1.schollz.com/patch?audioURL=https%3A%2F%2Fcdn.loc.gov%2Fservice%2Fgdc%2Fgdcarpl%2Fgdcarpl-1624415%2F1624415.mp3&secondsStart=982&secondsEnd=1002"><img src="/static/image/example2.png"></a>
-</p>
-
+## Web server
 
 The webserver requires a few more dependencies. You can install them via `apt`:
 
@@ -78,11 +96,10 @@ And then you can run the server via
 ```
 $ git clone https://github.com/schollz/teoperator
 $ cd teoperator && go build -v
-$ teoperator server
+$ ./teoperator server
 ```
 
 Then open a browser to `localhost:8053`!
-
 
 # License
 

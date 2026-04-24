@@ -1,525 +1,633 @@
-(( define "header" ))
-<html>
+((define "header"))
+<!DOCTYPE html>
+<html lang="de">
 
 <head>
-    <title>teoperator | make synth patches</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="title" content="teoperator | make patches">
+    <title>teoperator op-z edition | make synth patches</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="title" content="teoperator op-z edition | make patches">
     <meta name="description" content="Create drum and synth patches for the teenage engineering op-1 and op-z synthesizer from any sound on the internet.">
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://teoperator.com">
-    <meta property="og:title" content="teoperator | make synth patches">
+    <meta property="og:title" content="teoperator op-z edition | make synth patches">
     <meta property="og:description" content="Create drum and synth patches for the teenage engineering op-1 and op-z synthesizer from any sound on the internet.">
     <meta property="og:image" content="/static/image/example.png">
-    <!-- Twitter -->
     <meta property="twitter:card" content="/static/image/example.png">
     <meta property="twitter:url" content="https://teoperator.com">
-    <meta property="twitter:title" content="teoperator | make synth patches">
+    <meta property="twitter:title" content="teoperator op-z edition | make synth patches">
     <meta property="twitter:description" content="create drum and synth patches for the teenage engineering op-1 synthesizer from any sound on the internet.">
     <meta property="twitter:image" content="/static/image/example.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="/static/image/favicon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/static/image/favicon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/static/image/favicon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/static/image/favicon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/static/image/favicon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/static/image/favicon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/static/image/favicon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/static/image/favicon/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/image/favicon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/static/image/favicon/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/image/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/static/image/favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/image/favicon/favicon-16x16.png">
     <link rel="manifest" href="/static/image/favicon/manifest.json">
-    <meta name="msapplication-TileColor" content="#4d4d4d;">
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-    <meta name="theme-color" content="#4d4d4d;">
+    <meta name="theme-color" content="#2e2e2e">
     <link rel="stylesheet" href="/static/css/dropzone.css">
     <style>
-        @font-face {font-family: "Univers TE20 Thin";
-    src: url("/static/font/1c6eb2519248229e6860a41985bf1827.eot"); /* IE9*/
-    src: url("/static/font/1c6eb2519248229e6860a41985bf1827.iefix.eot") format("embedded-opentype"), /* IE6-IE8 */
-    url("/static/font/1c6eb2519248229e6860a41985bf1827.woff2") format("woff2"), /* chrome firefox */
-    url("/static/font/1c6eb2519248229e6860a41985bf1827.woff") format("woff"), /* chrome firefox */
-    url("/static/font/1c6eb2519248229e6860a41985bf1827.ttf") format("truetype"), /* chrome firefox opera Safari, Android, iOS 4.2+*/
-    url("/static/font/1c6eb2519248229e6860a41985bf1827.svg") format("svg"); /* iOS 4.1- */
-}
+        @font-face {
+            font-family: "Univers TE20 Thin";
+            src: url("/static/font/1c6eb2519248229e6860a41985bf1827.eot");
+            src: url("/static/font/1c6eb2519248229e6860a41985bf1827.iefix.eot") format("embedded-opentype"),
+                 url("/static/font/1c6eb2519248229e6860a41985bf1827.woff2") format("woff2"),
+                 url("/static/font/1c6eb2519248229e6860a41985bf1827.woff") format("woff"),
+                 url("/static/font/1c6eb2519248229e6860a41985bf1827.ttf") format("truetype"),
+                 url("/static/font/1c6eb2519248229e6860a41985bf1827.svg") format("svg");
+        }
 
-        /* some basic styling to make things pretty */
-      *,
-      *:before,
-      *:after {
-          box-sizing: border-box;
-          padding: 0;
-          margin: 0;
-      }
-    
-      body {
-          background: #4d4d4d;
-          color: #b2b2b2;
-          padding-top: 0em;
-          padding-bottom: 0em;
-          font-family: "Univers TE20 Thin";
-          letter-spacing: 0.02em;
-          line-height: 1em;
-          text-rendering: optimizelegibility;
-      }
+        *, *:before, *:after {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
 
+        html {
+            font-size: 17px;
+        }
 
-/* Extra small devices (phones, 600px and down) */
-@media only screen and (max-width: 600px) {
+        body {
+            background: #2e2e2e;
+            color: #e8e8e8;
+            font-family: "Univers TE20 Thin", monospace;
+            letter-spacing: 0.02em;
+            line-height: 1.4em;
+            text-rendering: optimizelegibility;
+            padding: 0;
+            min-height: 100vh;
+        }
 
-  body {
-          font-size: 18px;
-  }
-}
+        /* ── Main container ─────────────────────────── */
+        #app {
+            padding-top: 1.2em;
+            padding-bottom: 3em;
+        }
 
-/* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (min-width: 600px) {
-  body {
-          font-size: 24px;
-  }
-}
+        .card {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 1.2em 1em 1.4em;
+        }
 
+        /* ── Header / Legend ────────────────────────── */
+        .site-header {
+            border-bottom: 1px dotted #666;
+            padding-bottom: 0.5em;
+            margin-bottom: 1em;
+        }
+        .site-title {
+            font-size: 2em;
+            font-weight: 900;
+            color: #e0e0e0;
+            text-decoration: none;
+            letter-spacing: -0.01em;
+        }
+        .site-title:hover { color: #fff; }
+        .site-version {
+            font-size: 1em;
+            margin-left: 0.5em;
+            letter-spacing: 0.06em;
+            vertical-align: middle;
+        }
+        .opz-o  { color: #4fc97e; }
+        .opz-p  { color: #4fc97e; }
+        .opz-z  { color: #4fc97e; }
+        .opz-dash { color: #888; }
+        .opz-e  { color: #5bb8f5; animation: opz-pulse 3.2s ease-in-out infinite; }
+        .opz-d  { color: #f5c842; animation: opz-pulse 3.2s ease-in-out infinite 0.4s; }
+        .opz-i  { color: #f5c842; animation: opz-pulse 3.2s ease-in-out infinite 0.8s; }
+        .opz-t  { color: #e85c5c; animation: opz-pulse 3.2s ease-in-out infinite 1.2s; }
+        .opz-i2 { color: #e85c5c; animation: opz-pulse 3.2s ease-in-out infinite 1.6s; }
+        .opz-o2 { color: #4fc97e; animation: opz-pulse 3.2s ease-in-out infinite 2.0s; }
+        .opz-n  { color: #5bb8f5; animation: opz-pulse 3.2s ease-in-out infinite 2.4s; }
+        @keyframes opz-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.45; }
+        }
+        .site-tagline {
+            font-size: 1em;
+            color: #ddd;
+            margin-top: 0.4em;
+            line-height: 1.4;
+        }
 
-      .mw30 {
-          box-sizing: border-box;
-          max-width: 32em;
-          margin: auto;
-          border: 0 none;
-      }
-    
-      legend {
-          font-size: 1.2em;
-          width: 100%;
-          border-bottom: 1px dotted #99c;
-      }
-    
-      fieldset div {
-          margin: 4px 0;
-      }
-    
-      input,
-      textarea,
-      select {
-          font-size: 1em;
-      }
-    
-      /* flexbox styles */
-      fieldset div {
-          display: flex;
-          align-items: center;
-      }
-    
-      label {
-          order: 1;
-          width: 10em;
-          text-align: right;
-          padding-right: 0.5em;
-          white-space: nowrap;
-          user-select: none;
-          cursor: pointer;
-      }
+        /* ── Section labels ─────────────────────────── */
+        .section-label {
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #ccc;
+            margin-bottom: 0.3em;
+            margin-top: 1.1em;
+            display: block;
+        }
 
-      /* Extra small devices (phones, 600px and down) */
-@media only screen and (max-width: 600px) {
+        /* ── Inputs / Selects ───────────────────────── */
+        input[type="text"],
+        input[type="number"],
+        input[type="decimal"],
+        select {
+            display: block;
+            width: 100%;
+            background: #3a3a3a;
+            border: 1px solid #666;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-family: "Univers TE20 Thin", monospace;
+            font-size: 1em;
+            padding: 0.65em 0.8em;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="decimal"]:focus,
+        select:focus {
+            border-color: #20B2AA;
+            background: #404040;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8em center;
+            padding-right: 2em;
+        }
 
-  label {
-          width: 6em;
-  }
-}
+        /* ── Two-column row (start/end) ─────────────── */
+        .row-2col {
+            display: flex;
+            gap: 0.6em;
+        }
+        .row-2col > * { flex: 1; }
 
-    
-      div,
-      button,
-      input,
-      textarea,
-      select {
-          order: 2;
-          flex: 1 1 auto;
-      }
-    
-      input[type="checkbox"],
-      input[type="radio"] {
-/*          order: 1;
-          flex: none;
-          width: auto;
-          margin-left: 10em;
-          margin-right: -10em;*/
-      }
-    
-      input[type="checkbox"]~label,
-      input[type="radio"]~label {
-          width: auto;
-          text-align: left;
-          padding-left: 0.4em;
-      }
+        /* ── Buttons ────────────────────────────────── */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75em 1em;
+            border-radius: 6px;
+            border: 1px solid #666;
+            background: #3a3a3a;
+            color: #e0e0e0;
+            font-family: "Univers TE20 Thin", monospace;
+            font-size: 1em;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:hover, .btn:active {
+            background: #e0e0e0;
+            color: #2e2e2e;
+            border-color: #e0e0e0;
+        }
+        .btn-primary {
+            background: #20B2AA;
+            border-color: #20B2AA;
+            color: #fff;
+            font-size: 1.05em;
+            padding: 0.85em 1em;
+        }
+        .btn-primary:hover, .btn-primary:active {
+            background: #17938c;
+            border-color: #17938c;
+            color: #fff;
+        }
+        .btn-synth {
+            background: #7B68EE;
+            border-color: #7B68EE;
+            color: #fff;
+        }
+        .btn-synth:hover, .btn-synth:active {
+            background: #6456cc;
+            border-color: #6456cc;
+            color: #fff;
+        }
+        .btn-chop {
+            background: #3a3a3a;
+            border-color: #888;
+            color: #e0e0e0;
+            font-size: 1.05em;
+            padding: 0.85em 1em;
+        }
 
-      input.largerCheckbox { 
-            width: 80px; 
-        } 
-    
-      /* label state styles */
-      input:focus~label,
-      textarea:focus~label,
-      select:focus~label {
-          color: #FAFAD2;
-      }
-    
-      input:checked~label {
-          font-weight: bold;
-      }
-    
-      #app {
-          padding-top: 3.75em;
-          padding-left: 0.5em;
-          padding-right: 0.5em;
-      }
-    
-      .button {
-          max-width: 100%;
-          padding: 0.5em;
-      }
-    
-      .error {
-          color: #FFDAB9;
-      }
-    
-      .success {
-          color: #98FB98;
-      }
-    
-      .current {
-        color: #98FB98;
-        font-weight: 900;
-        font-size: 150%;
-      }
-    
-      .pt1 {
-          padding-top: 1em;
-      }
-    
-      .pt3 {
-          padding-top: 3em;
-      }
-    
-    
-      .pt2{
-          padding-top: 2em;
-      }
-    
-      .pt05 {
-          padding-top: 0.5em;
-      }
-    
-      dl {
-          padding: 0.1em;
-      }
-    
-      dt {
-          float: left;
-          clear: left;
-          text-align: right;
-          font-weight: bold;
-          color: #20B2AA;
-          padding-left: 1em;
-      }
-    
-      li > a {
-          color: #20B2AA;
-          font-size: 80%;
-          padding-left: 1em;
-      }
-    
-      ul {
-           list-style-type: none;
-      }
-    
-      dt::after {
-          content: ":";
-          padding-right: 0.5em;
-      }
-    
-      dd {}
-    
+        /* ── Dropzone override ──────────────────────── */
+        .dropzone-box {
+            background: #3a3a3a;
+            border: 1px dashed #666;
+            border-radius: 6px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0.7em;
+            font-size: 0.88em;
+            color: #888;
+            text-align: center;
+        }
+        .dropzone-box:hover {
+            border-color: #aaa;
+            color: #ccc;
+        }
+        #filesBox.dropzone {
+            background: #3a3a3a !important;
+            border: 1px dashed #666 !important;
+            border-radius: 6px !important;
+            min-height: 56px !important;
+            padding: 0.7em !important;
+            font-size: 0.88em !important;
+            color: #888 !important;
+            text-align: center !important;
+        }
+        .dropzone .dz-message { margin: 0; }
 
-    
-      .link {
-          cursor: pointer;
-          text-decoration: underline;
-      }
-    
-      input,
-      button, select,.dropzone {
-          background: #4d4d4d;
-          border: 1px solid #b2b2b2;
-          border-radius: 4px;
-          color: white;
-          padding: 0.5em;
-      }
-    
-      button {
-          cursor: pointer;
-      }
-    
-      button:hover {
-          background-color: white;
-          /* Green */
-          color: #4d4d4d;
-      }
-    
-      input:focus {
-          background-color: white;
-          /* Green */
-          color: #4d4d4d;
-      }
-    
-      a {
-          color: white;
-      }
-    
-      a:hover {
-          color: #FAFAD2;
-      }
-    
-      dd,
-      dt {
-          font-size: 80%;
-      }   
-    
-      .video {
-        margin: 0 auto;
-        border: 5px outset #ddd;
-        border-radius: 8px;
-        padding: 0.5em;
-    }
-    
-    .beatnum {
-        padding-right: 1em;
-    }
+        /* ── Multi-upload area ──────────────────────── */
+        #multiUploadSection { display: none; }
 
-    img {
-        max-width: 100%;
-    }
-    input, select,.dropzone {
-  min-width: 60%;
-  max-width:4em;
-  overflow: hidden;
-    }
+        .multi-select-btn {
+            display: block;
+            width: 100%;
+            padding: 0.85em 1em;
+            border-radius: 6px;
+            border: 1px solid #666;
+            background: #3a3a3a;
+            color: #c0c0c0;
+            font-family: "Univers TE20 Thin", monospace;
+            font-size: 1em;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.15s, border-color 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .multi-select-btn:hover, .multi-select-btn:active {
+            background: #444;
+            border-color: #aaa;
+        }
 
-         div#banner { 
-       position: absolute; 
-       top: 0; 
-       left: 0; 
-       background-color: #F6FFFE     ; 
-       color: #137752   ;
-       width: 100%; 
-       text-align: center;
-     }
-     div#banner-content { 
-       margin: 0 auto; 
-       padding: 10px; 
-     }
-     div#main-content { 
-       padding-top: 70px;
-    }
+        .multi-hint {
+            font-size: 0.78em;
+            color: #ccc;
+            margin-top: 0.35em;
+            line-height: 1.4;
+        }
+        .multi-hint strong { color: #20B2AA; }
 
-    .dropzone .dz-message {
-        margin: 0;
-    }
+        .android-tip {
+            font-size: 0.75em;
+            color: #bbb;
+            margin-top: 0.25em;
+            line-height: 1.4;
+        }
 
-    #preview {
-        font-size: 80%;
-    }
-    .dropzone {
-        min-height: auto;
-    }
+        /* ── File counter bar ───────────────────────── */
+        #multiFileList {
+            display: none;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 0.55em 0.8em;
+            margin-top: 0.5em;
+            font-size: 0.85em;
+            color: #aaa;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5em;
+        }
+        #clearMultiFiles {
+            background: none;
+            border: 1px solid #666;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.8em;
+            padding: 0.2em 0.6em;
+            cursor: pointer;
+            font-family: "Univers TE20 Thin", monospace;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        #clearMultiFiles:hover { color: #ccc; border-color: #aaa; }
 
-    .loading-gif {
-position: absolute;
-width:100%;
-height:100%;
-padding:8em;
-background: #4d4d4d;
-text-align: center;
-display:none;
-}
+        /* ── Options (compress / mono) ──────────────── */
+        .option-group {
+            background: #363636;
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 0.7em 0.9em;
+            margin-top: 0.5em;
+        }
+        .option-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7em;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .option-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            margin-top: 0.1em;
+            accent-color: #20B2AA;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .option-label {
+            font-size: 0.85em;
+            color: #ddd;
+            line-height: 1.4;
+        }
+        .option-label strong { color: #f0f0f0; }
 
-.lds-ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-ellipsis div {
-  position: absolute;
-  top: 33px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #fff;
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.lds-ellipsis div:nth-child(1) {
-  left: 8px;
-  animation: lds-ellipsis1 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(2) {
-  left: 8px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(3) {
-  left: 32px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(4) {
-  left: 56px;
-  animation: lds-ellipsis3 0.6s infinite;
-}
-@keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-@keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
-}
-@keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
-  }
-}
+        /* ── Build kit button ───────────────────────── */
+        #buildKitBtn {
+            margin-top: 0.8em;
+        }
 
+        /* ── Divider ────────────────────────────────── */
+        .divider {
+            border: none;
+            border-top: 1px dotted #555;
+            margin: 1.2em 0;
+        }
+
+        /* ── Result / waveform area ─────────────────── */
+        .waveform {
+            max-width: 100%;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .waveform-box {
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 0.8em;
+            margin-top: 0.8em;
+        }
+
+        /* ── Loading overlay ────────────────────────── */
+        .loading-gif {
+            position: fixed;
+            inset: 0;
+            background: rgba(46,46,46,0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            font-size: 1em;
+            color: #ccc;
+            text-align: center;
+            padding: 2em;
+        }
+        .lds-ellipsis {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 60px;
+            margin-top: 1em;
+        }
+        .lds-ellipsis div {
+            position: absolute;
+            top: 24px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #20B2AA;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+        .lds-ellipsis div:nth-child(1) { left: 8px; animation: lds-e1 0.6s infinite; }
+        .lds-ellipsis div:nth-child(2) { left: 8px; animation: lds-e2 0.6s infinite; }
+        .lds-ellipsis div:nth-child(3) { left: 32px; animation: lds-e2 0.6s infinite; }
+        .lds-ellipsis div:nth-child(4) { left: 56px; animation: lds-e3 0.6s infinite; }
+        @keyframes lds-e1 { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes lds-e3 { 0% { transform: scale(1); } 100% { transform: scale(0); } }
+        @keyframes lds-e2 { 0% { transform: translate(0,0); } 100% { transform: translate(24px,0); } }
+
+        /* ── Misc ───────────────────────────────────── */
+        a { color: #20B2AA; text-decoration: none; }
+        a:hover { color: #5dd8d2; text-decoration: underline; }
+        .error { color: #FFDAB9; }
+        .success { color: #98FB98; }
+        .current { color: #98FB98; font-weight: 900; font-size: 1.4em; }
+        .pt1 { padding-top: 1em; }
+        .pt2 { padding-top: 2em; }
+        .pt3 { padding-top: 3em; }
+        .pt05 { padding-top: 0.5em; }
+        small { font-size: 0.8em; }
+        img { max-width: 100%; }
+
+        dl { padding: 0.1em; }
+        dt { float: left; clear: left; text-align: right; font-weight: bold; color: #20B2AA; padding-left: 1em; font-size: 0.8em; }
+        dt::after { content: ":"; padding-right: 0.5em; }
+        dd { font-size: 0.8em; }
+        ul { list-style-type: none; }
+        li > a { color: #20B2AA; font-size: 0.8em; padding-left: 1em; }
+
+        .beatnum { padding-right: 1em; }
+        .link { cursor: pointer; text-decoration: underline; }
+
+        /* ── Desktop tweaks ─────────────────────────── */
+        @media (min-width: 600px) {
+            html { font-size: 18px; }
+            .card { padding: 1.5em 1.5em 2em; }
+        }
+        @media (min-width: 900px) {
+            html { font-size: 19px; }
+        }
     </style>
 </head>
 
-<body style="">
-    <div class="loading-gif">
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-gif" id="loadingOverlay">
         <p>processing (this may take a minute)...</p>
-        <div class="lds-ellipsis">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
+        <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
     </div>
-    <div id="banner">
-        <div id="banner-content">
-            note: this is β software, <a href="https://github.com/schollz/teoperator/issues/new?labels=bug&title=New+bug+report" style="color: #137752   ;">click</a> to report 🐛
-        </div>
-    </div>
-    <div id="app">
-        <fieldset class="mw30">
-            <legend>
-                <pre style="float:right; text-align: right;">
 
-   </pre><a href="/"><span style="font-size:1.5em"><strong style="font-size: 1.2em;">teoperator</strong></span></a> v1.3.1β
-            </legend>
-            <p class="pt1">
-                <strong>
-                    turn any sound into a drum or synth patch for the teenage engineering op-1 or op-z.
-                </strong>
-            </p>
-            <form id="patchform" action="/patch" method="get" class="pt1">
-                <div>
-                    <input id="audioURL" name="audioURL" type="text" value="((if .Metadata))((.Metadata.OriginalURL))((end))" />
-                    <label for="audioURL">url:</label>
-                </div>
-                <div>
-                    <div id="filesBox" class="dropzone dz-clickable">
-                        <div class="dz-message" data-dz-message="">
-                            <p style="font-size:80%; color: #b2b2b2;">Drop or click here to upload sound.<br>
-                            </p>
-                        </div>
+    <div id="app">
+        <div class="card">
+
+            <!-- Header -->
+            <div class="site-header">
+                <a href="/" class="site-title">teoperator</a><span class="site-version"><span class="opz-o">o</span><span class="opz-p">p</span><span class="opz-dash">-</span><span class="opz-z">z</span> <span class="opz-e">e</span><span class="opz-d">d</span><span class="opz-i">i</span><span class="opz-t">t</span><span class="opz-i2">i</span><span class="opz-o2">o</span><span class="opz-n">n</span></span>
+                <p class="site-tagline">turn any sound into a drum or synth patch for the teenage engineering op-1 or op-z.</p>
+                <p style="font-size:0.88em; color:#c0c0c0; margin-top:0.5em; line-height:1.6;">
+                    based on the <a href="https://github.com/schollz/teoperator" style="color:#20B2AA;">open-source teoperator</a> by infinitedigits &mdash;
+                    extended for the <strong style="color:#e0e0e0;">op-z</strong>:
+                    upload any number of samples &mdash; drum or synth &mdash; get back multiple ready-to-use .aif files.
+                    drum: auto-split into kits (max 24 splices / 12 s each) &middot;
+                    synth: each file &rarr; own .aif (max 5.75 s, or ~11.5 s with compress) &middot;
+                    compress works for both drum and synth
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="patchform" action="/patch" method="get">
+
+                <!-- URL input -->
+                <label class="section-label" for="audioURL">url</label>
+                <input id="audioURL" name="audioURL" type="text"
+                    value="((if .Metadata))((.Metadata.OriginalURL))((end))"
+                    placeholder="https://...">
+
+                <!-- Single file upload (Dropzone) -->
+                <label class="section-label">or upload single file</label>
+                <div id="filesBox" class="dropzone dz-clickable">
+                    <div class="dz-message" data-dz-message="">
+                        <p style="font-size:0.88em; color:#888;">tap or drop to upload a file</p>
                     </div>
-                    <label for="filesBox">or upload:</label>
                 </div>
-                <div>
-                    <input type="decimal" id="secondsStart" name="secondsStart" value="((if .Metadata))((.Metadata.Start))((end))" style="min-width: 30%;">
-                    <input type="decimal" id="secondsEnd" name="secondsEnd" value="((if .Metadata))((.Metadata.Stop))((end))" style="min-width: 30%;">
-                    <label for="secondsStart">start/end:<br><small>(in seconds)</small></label>
+
+                <!-- Multi-file upload -->
+                <div id="multiUploadSection">
+                    <label class="section-label" style="color:#4fc97e; font-size:0.8em;">&#9654; quick workflow (op-z extensions)</label>
+                    <div style="font-size:0.82em; color:#aaa; margin-bottom:0.7em; line-height:1.5;">
+                        <span style="color:#4fc97e; font-weight:bold;">1.</span> select files &nbsp;
+                        <span style="color:#f5c842; font-weight:bold;">2.</span> compress? &nbsp;
+                        <span style="color:#e85c5c; font-weight:bold;">3.</span> build &amp; download
+                    </div>
+                    <input type="file" id="multiFileInput" multiple accept="audio/*,.wav,.aif,.aiff,.mp3,.ogg,.flac" style="display:none;">
+                    <button type="button" id="multiSelectBtn" class="multi-select-btn">
+                        <span style="color:#4fc97e; font-weight:bold;">1.</span> select files
+                    </button>
+                    <p class="multi-hint" id="multiHint">
+                        <strong>drum:</strong> select any number → auto-split into kits (max 24 splices / 12 s each)
+                    </p>
+                    <p class="android-tip">
+                        tip (android): long-press a file, then tap others to select multiple. "select all" is not available in the system file picker.
+                    </p>
+
+                    <!-- File counter -->
+                    <div id="multiFileList" style="display:none;">
+                        <span id="multiFileCount">0 files selected</span>
+                        <button type="button" id="clearMultiFiles">clear</button>
+                    </div>
+
+                    <!-- Options -->
+                    <div id="drumOptions" class="option-group" style="display:none;">
+                        <label class="option-row">
+                            <input type="checkbox" id="compressCheck">
+                            <span class="option-label">
+                                <span style="color:#f5c842; font-weight:bold;">2.</span>
+                                <strong>compress?</strong> halve sample rate (+1 oct) → doubles playback length — set pitch −1 oct on OP-Z
+                            </span>
+                        </label>
+                    </div>
+                    <div id="synthOptions" class="option-group" style="display:none;">
+                        <label class="option-row">
+                            <input type="checkbox" id="monoCheck" checked>
+                            <span class="option-label">
+                                <span style="color:#f5c842; font-weight:bold;">2.</span>
+                                <strong>mono:</strong> convert to mono (uncheck to keep stereo)
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Build / Convert button -->
+                    <div id="multiBuildDiv" style="display:none;">
+                        <button type="button" id="buildKitBtn" class="btn btn-primary"><span style="color:#ffdd88; font-weight:bold;">3.</span> build kit from files!</button>
+                    </div>
                 </div>
-                <div>
-                    <select name="synthPatch" id="synthPatch" style="text-align: center;">
-                        <option value="drum">drum</option>
-                        <option value="synth" ((if $.Metadata.IsSynthPatch))selected((end))>synth</option>
-                    </select>
-                    <label for="synthPatch">patch type:</label>
+
+                <hr class="divider">
+
+                <!-- Start / End -->
+                <label class="section-label">start / end (seconds, optional)</label>
+                <div class="row-2col">
+                    <input type="decimal" id="secondsStart" name="secondsStart"
+                        value="((if .Metadata))((.Metadata.Start))((end))"
+                        placeholder="0">
+                    <input type="decimal" id="secondsEnd" name="secondsEnd"
+                        value="((if .Metadata))((.Metadata.Stop))((end))"
+                        placeholder="0">
                 </div>
-                <div id="optionRemoveSilence" ((if $.Metadata.IsSynthPatch))style="display:none;" ((end))>
-                    <select name="removeSilence" id="removeSilence" style="text-align: center;">
+
+                <!-- Patch type -->
+                <label class="section-label" for="synthPatch">patch type</label>
+                <select name="synthPatch" id="synthPatch">
+                    <option value="drum">drum</option>
+                    <option value="synth" ((if $.Metadata.IsSynthPatch))selected((end))>synth</option>
+                </select>
+
+                <!-- Remove silence (drum only) -->
+                <div id="optionRemoveSilence" ((if $.Metadata.IsSynthPatch))style="display:none;"((end))>
+                    <label class="section-label" for="removeSilence">remove silence?</label>
+                    <select name="removeSilence" id="removeSilence">
                         <option value="no">no</option>
                         <option value="yes" ((if $.Metadata.RemoveSilence))selected((end))>yes</option>
                     </select>
-                    <label for="removeSilence">remove silence?</label>
                 </div>
-                <div id="optionNumberSplices" ((if $.Metadata.IsSynthPatch))style="display:none;" ((end))>
-                    <input type="decimal" id="splices" name="splices" value="((if .Metadata))((.Metadata.Splices))((end))" style="min-width: 60%;">
-                    <label for="optionNumberSplices"># splices:<br><small>(optional)</small></label>
+
+                <!-- Splices (drum only) -->
+                <div id="optionNumberSplices" ((if $.Metadata.IsSynthPatch))style="display:none;"((end))>
+                    <label class="section-label" for="splices"># splices (optional)</label>
+                    <input type="decimal" id="splices" name="splices"
+                        value="((if .Metadata))((.Metadata.Splices))((end))"
+                        placeholder="0">
                 </div>
-                <div id="optionRootNote" ((if $.Metadata.IsSynthPatch))((else))style="display:none;" ((end))>
-                    <select name="rootNote" id="rootNote" style="text-align: center;">
-                        <option value="A" ((if eq $.Metadata.RootNote "A" ))selected((end))>A</option>
-                        <option value="A#" ((if eq $.Metadata.RootNote "A#" ))selected((end))>A#</option>
-                        <option value="B" ((if eq $.Metadata.RootNote "B" ))selected((end))>B</option>
-                        <option value="C" ((if eq $.Metadata.RootNote "C" ))selected((end))>C</option>
-                        <option value="C#" ((if eq $.Metadata.RootNote "C#" ))selected((end))>C#</option>
-                        <option value="D" ((if eq $.Metadata.RootNote "D" ))selected((end))>D</option>
-                        <option value="D#" ((if eq $.Metadata.RootNote "D#" ))selected((end))>D#</option>
-                        <option value="E" ((if eq $.Metadata.RootNote "E" ))selected((end))>E</option>
-                        <option value="F" ((if eq $.Metadata.RootNote "F" ))selected((end))>F</option>
-                        <option value="F#" ((if eq $.Metadata.RootNote "F#" ))selected((end))>F#</option>
-                        <option value="G" ((if eq $.Metadata.RootNote "G" ))selected((end))>G</option>
-                        <option value="G#" ((if eq $.Metadata.RootNote "G#" ))selected((end))>G#</option>
+
+                <!-- Root note (synth only) -->
+                <div id="optionRootNote" ((if $.Metadata.IsSynthPatch))((else))style="display:none;"((end))>
+                    <label class="section-label" for="rootNote">root note</label>
+                    <select name="rootNote" id="rootNote">
+                        <option value="A"  ((if eq $.Metadata.RootNote "A" ))selected((end))>A</option>
+                        <option value="A#" ((if eq $.Metadata.RootNote "A#"))selected((end))>A#</option>
+                        <option value="B"  ((if eq $.Metadata.RootNote "B" ))selected((end))>B</option>
+                        <option value="C"  ((if eq $.Metadata.RootNote "C" ))selected((end))>C</option>
+                        <option value="C#" ((if eq $.Metadata.RootNote "C#"))selected((end))>C#</option>
+                        <option value="D"  ((if eq $.Metadata.RootNote "D" ))selected((end))>D</option>
+                        <option value="D#" ((if eq $.Metadata.RootNote "D#"))selected((end))>D#</option>
+                        <option value="E"  ((if eq $.Metadata.RootNote "E" ))selected((end))>E</option>
+                        <option value="F"  ((if eq $.Metadata.RootNote "F" ))selected((end))>F</option>
+                        <option value="F#" ((if eq $.Metadata.RootNote "F#"))selected((end))>F#</option>
+                        <option value="G"  ((if eq $.Metadata.RootNote "G" ))selected((end))>G</option>
+                        <option value="G#" ((if eq $.Metadata.RootNote "G#"))selected((end))>G#</option>
                     </select>
-                    <label for="rootNote">root note:
-                    </label>
                 </div>
-                <div>
-                    <button class="button" type="submit" style="max-width:4em;  min-width: 60%; font-size: 100%;">chop it up!</button>
-                    <label for="name"></label>
+
+                <!-- Chop button -->
+                <div style="margin-top:1.2em;">
+                    <button class="btn btn-chop" type="submit" id="chopBtn">chop it up!</button>
                 </div>
+
             </form>
-        </fieldset>
-        <div class="mw30">
+
+            <!-- Error / result messages -->
             (( with .MessageError ))
-            <div style="text-align: center;">
-                <p class="error" style="text-transform: lowercase;">
-                    ((.))
-                </p>
-                <p>
-                    problem? click <a href="https://github.com/schollz/teoperator/issues/new">here to send a bug report</a>.
+            <div style="text-align:center; margin-top:1.5em;">
+                <p class="error">((.)) </p>
+                <p style="margin-top:0.5em; font-size:0.85em;">
+                    problem? <a href="https://github.com/schollz/teoperator/issues/new">click here to send a bug report</a>.
                 </p>
             </div>
             (( end ))
+
             (( if .Metadata.UUID ))
             <div class="pt1">
-                <p><span style="font-size:140%; font-weight:900;">((if $.Metadata.IsSynthPatch))synth patch((else))drum patches((end))</span> generated from <a href="(($.Metadata.OriginalURL))">((urlbase $.Metadata.Name ))</a>. click the waveform to listen and download the ((if .Metadata.IsSynthPatch))synth patch.((else))drum patch. the varying colors indicate how the keys are assigned to each sound.((end))
+                <p>
+                    <span style="font-size:1.3em; font-weight:900; color:#e0e0e0;">
+                        ((if $.Metadata.IsSynthPatch))synth patch((else))drum patches((end))
+                    </span>
+                    generated from <a href="(($.Metadata.OriginalURL))">((urlbase $.Metadata.Name))</a>.
+                    click the waveform to listen and download.
+                    ((if not .Metadata.IsSynthPatch))the varying colors indicate key assignments.((end))
                 </p>
             </div>
-            <div style="padding:1em; border: 2px solid #FFFFFF; margin-top:1em;">
+            <div class="waveform-box">
                 (( range .Metadata.Files))
                 <div class="pt1">
                     <p style="display:none;" id="p((filebase .Prefix))">
-                        <a href="((.Prefix)).aif" download>download ((filebase .Prefix)).aif</a>: ((roundfloat .Start)) to ((roundfloat .Stop)) seconds</p>
+                        <a href="((.Prefix)).aif" download>download ((filebase .Prefix)).aif</a>:
+                        ((roundfloat .Start)) to ((roundfloat .Stop)) seconds
+                    </p>
                     <p>
                         <img src="((.Prefix)).wav.png" class="waveform" id="((filebase .Prefix))">
                     </p>
                     <p style="display:none;" id="a((filebase .Prefix))">
                         <audio controls id="audio((filebase .Prefix))">
-                            <source src="/((.Prefix)).wav" type="audio/wav" />
+                            <source src="/((.Prefix)).wav" type="audio/wav">
                             Your browser does not support the audio tag.
                         </audio>
                     </p>
@@ -527,53 +635,90 @@ display:none;
                 ((end))
             </div>
             ((else))
-            <div>
-                <p class="pt1">
-                    <strong>instructions:</strong> enter a url or upload a file, start and end (optional), select patch type, and hit "chop it up!" drum patches will get automatic key assignments based on waveform transients.
+            <div class="pt1" style="font-size:0.85em; color:#ccc; line-height:1.6;">
+                <p>
+                    <strong style="color:#e0e0e0;">single file &rarr; "chop it up!":</strong>
+                    enter a url or upload a single file, set start/end (optional), select patch type, and hit "chop it up!".
+                    drum patches are automatically split into splices based on waveform transients.
+                    use <em># splices</em> to override the automatic detection with a fixed number.
+                    the <em>chop it up!</em> button is only relevant in this single-file mode.
                 </p>
-                <p class="pt2">
-                    <strong>drum patch examples:</strong> <a href="/patch?audioURL=https%3A%2F%2Fwww.instagram.com%2Fp%2FCAluNy9lswZ%2F&secondsStart=0&secondsEnd=30&synthPatch=drum">drumbeat</a> from instagram, <a href="/patch?audioURL=https%3A%2F%2Fcdn.loc.gov%2Fservice%2Fgdc%2Fgdcarpl%2Fgdcarpl-1624415%2F1624415.mp3&secondsStart=982&secondsEnd=1002">poetry</a> from library of congress, <a href="/patch?audioURL=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D36CYMdFmDeQ&secondsStart=21.9&secondsEnd=60">spoken word</a> from youtube.
+                <p class="pt1">
+                    <strong style="color:#e0e0e0;">multi-upload &rarr; fully automatic (op-z extensions):</strong>
+                    select as many individual sample files as you want &mdash; no limit.
+                    no chopping needed: each file is already one sample.
+                    the tool automatically groups them into as many .aif drum kits as needed,
+                    respecting both limits the op-z imposes: max 24 splices and max 12 s total per kit.
+                    so 60 samples become e.g. 3&ndash;4 kits, each ready to drop onto the op-z.
                 </p>
                 <p class="pt1">
-                    <strong>synth patch examples:</strong> <a href="/patch?audioURL=http%3A%2F%2Ftheremin.music.uiowa.edu%2Fsound%2520files%2FMIS%2520Pitches%2520-%25202014%2FStrings%2FCello%2FCello.arco.ff.sulC.A2.stereo.aif&secondsStart=0&secondsEnd=0&synthPatch=on">cello sound</a> and <a href="/patch?audioURL=http%3A%2F%2Ftheremin.music.uiowa.edu%2Fsound%2520files%2FMIS%2FPiano_Other%2Fpiano%2FPiano.mf.A4.aiff&secondsStart=0&secondsEnd=0&synthPatch=on">piano sound</a> from U of Iowa</a>, a <a href="/patch?audioURL=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fc%2Fc7%2FDidgeridoo_sound.ogg&secondsStart=0&secondsEnd=0&synthPatch=on">didgeridoo</a> from wikipedia, a <a href="/patch?audioURL=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXCPj4JPbKtA&secondsStart=17&secondsEnd=22.25&synthPatch=on">epic whistle</a> from youtube.
+                    <strong style="color:#e0e0e0;">synth batch:</strong>
+                    select multiple audio files in synth mode &mdash; each one is converted to its own .aif synth patch.
+                    the op-z synth slot holds up to <strong style="color:#e0e0e0;">5.75 s</strong> per sample.
+                    all files are bundled into a single zip for download, ready to drop into op-z synth slots.
+                </p>
+                <p class="pt1">
+                    <strong style="color:#e0e0e0;">compress mode (drum &amp; synth):</strong>
+                    for samples longer than 1 s, compress halves the sample rate (+1 octave).
+                    on the op-z, set the pitch parameter to &minus;1 oct &rarr; original pitch is restored
+                    and you effectively get <em>double the playback length</em> out of each slot:
+                    drum kits: up to <strong style="color:#e0e0e0;">24 s</strong> effective playback (from 12 s slot) &middot;
+                    synth patches: up to <strong style="color:#e0e0e0;">~11.5 s</strong> effective playback (from 5.75 s slot).
+                    useful for longer loops, pads, or textures that would otherwise be cut short.
+                </p>
+                <p class="pt1">
+                    <strong style="color:#e0e0e0;">drum examples:</strong>
+                    <a href="/patch?audioURL=https%3A%2F%2Fwww.instagram.com%2Fp%2FCAluNy9lswZ%2F&secondsStart=0&secondsEnd=30&synthPatch=drum">drumbeat</a> (instagram),
+                    <a href="/patch?audioURL=https%3A%2F%2Fcdn.loc.gov%2Fservice%2Fgdc%2Fgdcarpl%2Fgdcarpl-1624415%2F1624415.mp3&secondsStart=982&secondsEnd=1002">poetry</a> (library of congress),
+                    <a href="/patch?audioURL=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D36CYMdFmDeQ&secondsStart=21.9&secondsEnd=60">spoken word</a> (youtube),
+                    <a href="https://conforce.gumroad.com/p/free-digitone-fm-drum-perc-sample-pack" target="_blank">elektron digitone fm drums</a> (gumroad, free pack &rarr; download &amp; upload via multi-upload).
+                </p>
+                <p class="pt1">
+                    <strong style="color:#e0e0e0;">synth examples:</strong>
+                    <a href="/patch?audioURL=http%3A%2F%2Ftheremin.music.uiowa.edu%2Fsound%2520files%2FMIS%2520Pitches%2520-%25202014%2FStrings%2FCello%2FCello.arco.ff.sulC.A2.stereo.aif&secondsStart=0&secondsEnd=0&synthPatch=on">cello</a>,
+                    <a href="/patch?audioURL=http%3A%2F%2Ftheremin.music.uiowa.edu%2Fsound%2520files%2FMIS%2FPiano_Other%2Fpiano%2FPiano.mf.A4.aiff&secondsStart=0&secondsEnd=0&synthPatch=on">piano</a>,
+                    <a href="/patch?audioURL=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fc%2Fc7%2FDidgeridoo_sound.ogg&secondsStart=0&secondsEnd=0&synthPatch=on">didgeridoo</a>,
+                    <a href="/patch?audioURL=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DXCPj4JPbKtA&secondsStart=17&secondsEnd=22.25&synthPatch=on">epic whistle</a>.
                 </p>
             </div>
             ((end))
-            <p class="pt2" style="text-transform: lowercase;">
-                please note: <small>this is <underline>not a teenage engineering product</underline>. by using this website you are acknowledging that it comes WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</small>
+
+            <p class="pt2" style="font-size:0.7em; color:#aaa; line-height:1.5; text-transform:lowercase;">
+                this is <em>not</em> a teenage engineering product. no warranty of any kind.
+                original <a href="https://github.com/schollz/teoperator" style="color:#666;">teoperator</a> by
+                <a href="https://www.instagram.com/infinitedigits/" style="color:#666;">infinitedigits</a> (c)2020 &mdash;
+                op-z extensions open-source at <a href="https://github.com/schollz/teoperator" style="color:#666;">github</a>.
             </p>
-            (( end ))
-            (( define "footer" ))
-            <div class="pt3" style="text-align: right;">
-                <small>Made <a href="https://github.com/schollz/teoperator" target="_blank">open-source</a> by <a href="https://www.instagram.com/infinitedigits/" target="_blank">infinitedigits</a> (c)2020.</small>
-            </div>
-        </div>
-    </div>
+
+         </div><!-- /card -->
+    </div><!-- /app -->
+((end))
+((define "footer"))
     <script src="/static/js/jquery.min.js"></script>
     <script>
     $(document).ready(function() {
-        $('.waveform').click(
-            function(e) {
-                console.log(e.currentTarget.id);
-                if ($("#p" + e.currentTarget.id).is(":visible")) {
-                    $("#audio" + e.currentTarget.id).trigger('pause');
-                    $("#audio" + e.currentTarget.id)[0].currentTime = 0;
-                } else {
-                    $("#audio" + e.currentTarget.id).trigger('play');
-                }
-                $("#p" + e.currentTarget.id).fadeToggle("fast", "swing");
-                $("#a" + e.currentTarget.id).fadeToggle("fast", "swing");
-            },
-        );
+        // Waveform click → play/pause
+        $('.waveform').click(function(e) {
+            var id = e.currentTarget.id;
+            if ($("#p" + id).is(":visible")) {
+                $("#audio" + id).trigger('pause');
+                $("#audio" + id)[0].currentTime = 0;
+            } else {
+                $("#audio" + id).trigger('play');
+            }
+            $("#p" + id).fadeToggle("fast", "swing");
+            $("#a" + id).fadeToggle("fast", "swing");
+        });
 
-        $('#patchform').submit(function(e) {
-            $(".loading-gif").fadeIn("slow");
+        // Show loading on form submit
+        $('#patchform').submit(function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
             return true;
         });
 
-        $('#synthPatch').change(function(e) {
-            console.log(e.target.value);
-            if (e.target.value == "drum") {
+        // Patch type toggle
+        $('#synthPatch').change(function() {
+            if (this.value === 'drum') {
                 $("#optionRemoveSilence").show();
                 $("#optionNumberSplices").show();
                 $("#optionRootNote").hide();
@@ -582,32 +727,72 @@ display:none;
                 $("#optionNumberSplices").hide();
                 $("#optionRootNote").show();
             }
-        })
+        });
     });
     </script>
-    <img src="/static/image/op1.png" width="70%" style="float:right; max-width: 900px;">
+
     <script src="/static/js/dropzone.js"></script>
     <script>
     function humanFileSize(bytes, si) {
         var thresh = si ? 1000 : 1024;
-        if (Math.abs(bytes) < thresh) {
-            return bytes + ' B';
-        }
-        var units = si ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+        if (Math.abs(bytes) < thresh) return bytes + ' B';
+        var units = si ? ['kB','MB','GB','TB'] : ['KiB','MiB','GiB','TiB'];
         var u = -1;
-        do {
-            bytes /= thresh;
-            ++u;
-        } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+        do { bytes /= thresh; ++u; } while (Math.abs(bytes) >= thresh && u < units.length - 1);
         return bytes.toFixed(1) + ' ' + units[u];
     }
 
     var Name = "";
     var filesize = 0;
+    var multiSessionID = "";
+    var multiFileCount = 0;
+    var multiUploadInProgress = false;
+    var multiSelectedFiles = [];
+
+    function generateSessionID() {
+        return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+    }
+
+    function updateMultiFileUI() {
+        var count = multiSelectedFiles.length;
+        document.getElementById('multiFileCount').innerText = count + ' file' + (count !== 1 ? 's' : '') + ' selected';
+        var listEl = document.getElementById('multiFileList');
+        var buildEl = document.getElementById('multiBuildDiv');
+        if (count > 0) {
+            listEl.style.display = 'flex';
+            buildEl.style.display = '';
+        } else {
+            listEl.style.display = 'none';
+            buildEl.style.display = 'none';
+        }
+    }
+
+    function updateUploadMode() {
+        var patchType = document.getElementById('synthPatch').value;
+        document.getElementById('multiUploadSection').style.display = 'block';
+        if (patchType === 'drum') {
+            document.getElementById('multiHint').innerHTML =
+                '<strong>drum:</strong> select any number → auto-split into kits (max 24 splices / 12 s each)';
+            document.getElementById('buildKitBtn').innerText = 'build kit from files!';
+            document.getElementById('buildKitBtn').className = 'btn btn-primary';
+            document.getElementById('drumOptions').style.display = 'block';
+            document.getElementById('synthOptions').style.display = 'none';
+        } else {
+            document.getElementById('multiHint').innerHTML =
+                '<strong>synth:</strong> each file → individual .aif patch (ZIP download if multiple)';
+            document.getElementById('buildKitBtn').innerText = 'convert all to .aif!';
+            document.getElementById('buildKitBtn').className = 'btn btn-synth';
+            document.getElementById('drumOptions').style.display = 'none';
+            document.getElementById('synthOptions').style.display = 'block';
+        }
+        if (multiSelectedFiles.length > 0) {
+            multiSelectedFiles = [];
+            updateMultiFileUI();
+        }
+    }
 
     (function(Dropzone) {
         Dropzone.autoDiscover = false;
-
         let drop = new Dropzone('div#filesBox', {
             maxFiles: 1,
             url: '/file',
@@ -624,58 +809,126 @@ display:none;
         drop.on("uploadprogress", function(file, progress, bytesSent) {
             progress = bytesSent / file.size * 100;
             try {
-                var width = document.getElementById('preview').offsetWidth - 120;
                 var repeatTimes = Math.round(18 * progress / 100);
-                document.getElementById("preview").innerHTML = `${Name} (${humanFileSize(filesize)})
-                <p>&nbsp;${"#".repeat(repeatTimes)} ${Math.round(progress)}%</p>`;
-
-            } catch (err) {}
+                document.getElementById("preview").innerHTML =
+                    Name + ' (' + humanFileSize(filesize, true) + ')<p>&nbsp;' +
+                    '#'.repeat(repeatTimes) + ' ' + Math.round(progress) + '%</p>';
+            } catch(err) {}
         });
 
-        //     drop.on('totaluploadprogress', function(progress) {
-
-
-        drop.on('success', function(file, response) {
-            console.log("success");
-            console.log(response);
-            response = JSON.parse(file.xhr.response);
-            console.log(file);
-            console.log(response);
+        drop.on('success', function(file) {
+            var response = JSON.parse(file.xhr.response);
             $("#audioURL").val(response.id);
         });
 
         drop.on('error', function(file, response) {
-            console.log('error');
-            console.log(response);
-            document.getElementById("errormessage").innerText = response.message;
-
+            try { document.getElementById("errormessage").innerText = response.message; } catch(e) {}
             drop.removeAllFiles();
         });
 
         drop.on('addedfile', function(file) {
-            console.log(file);
             Name = file.name;
             filesize = file.size;
-            document.getElementById("preview").innerText = `${file.name} (${humanFileSize(file.size)})
-`;
-        })
-
-        drop.on('removedfile', function(file) {
-            console.log(file);
+            document.getElementById("preview").innerText = file.name + ' (' + humanFileSize(file.size, true) + ')';
         });
     })(Dropzone);
+
+    // Multi-file select
+    document.getElementById('multiSelectBtn').addEventListener('click', function() {
+        document.getElementById('multiFileInput').click();
+    });
+
+    document.getElementById('multiFileInput').addEventListener('change', function(e) {
+        multiSelectedFiles = Array.from(e.target.files);
+        updateMultiFileUI();
+        e.target.value = '';
+    });
+
+    document.getElementById('clearMultiFiles').addEventListener('click', function() {
+        multiSelectedFiles = [];
+        multiSessionID = '';
+        updateMultiFileUI();
+    });
+
+    // Build kit / convert all
+    document.getElementById('buildKitBtn').addEventListener('click', function() {
+        if (multiSelectedFiles.length === 0) { alert('Please select files first.'); return; }
+        if (multiUploadInProgress) return;
+        multiUploadInProgress = true;
+        multiSessionID = generateSessionID();
+        var patchType = document.getElementById('synthPatch').value;
+        var rootNote = document.getElementById('rootNote') ? document.getElementById('rootNote').value : 'A';
+
+        document.getElementById('buildKitBtn').innerText = 'uploading...';
+        document.getElementById('buildKitBtn').disabled = true;
+
+        var files = multiSelectedFiles.slice();
+        var index = 0;
+        var fileNames = files.map(function(f) { return f.name; });
+
+        function uploadNext() {
+            if (index >= files.length) {
+                document.getElementById('buildKitBtn').innerText = 'processing...';
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                if (patchType === 'synth') {
+                    var monoEl = document.getElementById('monoCheck');
+                    var mono = monoEl && monoEl.checked ? '1' : '0';
+                    var compress = document.getElementById('compressCheck').checked ? '1' : '0';
+                    var url = '/multibatch?sessionID=' + encodeURIComponent(multiSessionID)
+                        + '&rootNote=' + encodeURIComponent(rootNote)
+                        + '&mono=' + mono
+                        + '&compress=' + compress;
+                    fileNames.forEach(function(n, i) { url += '&name' + i + '=' + encodeURIComponent(n); });
+                    window.location.href = url;
+                } else {
+                    var firstBase = fileNames.length > 0 ? fileNames[0].replace(/\.[^/.]+$/, '') : 'kit';
+                    var compress = document.getElementById('compressCheck').checked ? '1' : '0';
+                    window.location.href = '/multidrumkits?sessionID=' + encodeURIComponent(multiSessionID)
+                        + '&baseName=' + encodeURIComponent(firstBase)
+                        + '&compress=' + compress;
+                }
+                return;
+            }
+            var file = files[index];
+            var formData = new FormData();
+            formData.append('file', file, file.name);
+            formData.append('sessionID', multiSessionID);
+            document.getElementById('buildKitBtn').innerText = 'uploading ' + (index+1) + '/' + files.length + '...';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/multifile', true);
+            xhr.onload = function() {
+                if (xhr.status === 201) { index++; uploadNext(); }
+                else {
+                    alert('Upload failed: ' + file.name);
+                    multiUploadInProgress = false;
+                    document.getElementById('buildKitBtn').innerText = patchType === 'synth' ? 'convert all to .aif!' : 'build kit from files!';
+                    document.getElementById('buildKitBtn').disabled = false;
+                }
+            };
+            xhr.onerror = function() {
+                alert('Network error: ' + file.name);
+                multiUploadInProgress = false;
+                document.getElementById('buildKitBtn').innerText = patchType === 'synth' ? 'convert all to .aif!' : 'build kit from files!';
+                document.getElementById('buildKitBtn').disabled = false;
+            };
+            xhr.send(formData);
+        }
+
+        uploadNext();
+    });
+
+    document.getElementById('synthPatch').addEventListener('change', updateUploadMode);
+    updateUploadMode();
     </script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-76290446-2"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
-
-    function gtag() { dataLayer.push(arguments); }
+    function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'UA-76290446-2');
     </script>
 </body>
-
 </html>
-((end ))
+((end))

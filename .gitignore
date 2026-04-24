@@ -9,3 +9,6 @@ teoperator
 *.mkv
 
 dist/
+run_server.sh
+watchdog.py
+test_drumkits.go
