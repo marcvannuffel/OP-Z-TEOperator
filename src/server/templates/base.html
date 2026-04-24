@@ -245,6 +245,8 @@
 
         /* ── Multi-upload area ──────────────────────── */
         #multiUploadSection { display: none; }
+        .multi-patchtype-row { display:flex; align-items:center; gap:0.6em; margin-bottom:0.7em; }
+        .multi-patchtype-row select { background:#3a3a3a; color:#e8e8e8; border:1px solid #555; border-radius:6px; padding:0.45em 0.6em; font-family:monospace; font-size:0.95em; }
 
         .multi-select-btn {
             display: block;
@@ -484,13 +486,22 @@
                 <div id="multiUploadSection">
                     <label class="section-label" style="color:#4fc97e; font-size:0.8em;">&#9654; quick workflow (op-z extensions)</label>
                     <div style="font-size:0.82em; color:#aaa; margin-bottom:0.7em; line-height:1.5;">
-                        <span style="color:#4fc97e; font-weight:bold;">1.</span> select files &nbsp;
-                        <span style="color:#f5c842; font-weight:bold;">2.</span> compress? &nbsp;
-                        <span style="color:#e85c5c; font-weight:bold;">3.</span> build &amp; download
+                        <span style="color:#4fc97e; font-weight:bold;">1.</span> patch type &nbsp;
+                        <span style="color:#5bb8f5; font-weight:bold;">2.</span> select files &nbsp;
+                        <span style="color:#f5c842; font-weight:bold;">3.</span> compress? &nbsp;
+                        <span style="color:#e85c5c; font-weight:bold;">4.</span> build &amp; download
+                    </div>
+                    <!-- Patch type selector (inline, top of multi-upload) -->
+                    <div class="multi-patchtype-row">
+                        <label class="section-label" style="margin:0; font-size:0.75em;"><span style="color:#4fc97e; font-weight:bold;">1.</span> patch type</label>
+                        <select name="synthPatch" id="synthPatch" style="flex:1;">
+                            <option value="drum">drum</option>
+                            <option value="synth" ((if $.Metadata.IsSynthPatch))selected((end))>synth</option>
+                        </select>
                     </div>
                     <input type="file" id="multiFileInput" multiple accept="audio/*,.wav,.aif,.aiff,.mp3,.ogg,.flac" style="display:none;">
                     <button type="button" id="multiSelectBtn" class="multi-select-btn">
-                        <span style="color:#4fc97e; font-weight:bold;">1.</span> select files
+                        <span style="color:#5bb8f5; font-weight:bold;">2.</span> select files
                     </button>
                     <p class="multi-hint" id="multiHint">
                         <strong>drum:</strong> select any number → auto-split into kits (max 24 splices / 12 s each)
@@ -510,7 +521,7 @@
                         <label class="option-row">
                             <input type="checkbox" id="compressCheck">
                             <span class="option-label">
-                                <span style="color:#f5c842; font-weight:bold;">2.</span>
+                                <span style="color:#f5c842; font-weight:bold;">3.</span>
                                 <strong>compress?</strong> halve sample rate (+1 oct) → doubles playback length — set pitch −1 oct on OP-Z
                             </span>
                         </label>
@@ -519,7 +530,7 @@
                         <label class="option-row">
                             <input type="checkbox" id="compressCheckSynth">
                             <span class="option-label">
-                                <span style="color:#f5c842; font-weight:bold;">2.</span>
+                                <span style="color:#f5c842; font-weight:bold;">3.</span>
                                 <strong>compress?</strong> halve sample rate (+1 oct) → up to ~11.5 s per slot — set pitch −1 oct on OP-Z
                             </span>
                         </label>
@@ -533,7 +544,7 @@
 
                     <!-- Build / Convert button -->
                     <div id="multiBuildDiv" style="display:none;">
-                        <button type="button" id="buildKitBtn" class="btn btn-primary"><span style="color:#ffdd88; font-weight:bold;">3.</span> build kit from files!</button>
+                        <button type="button" id="buildKitBtn" class="btn btn-primary"><span style="color:#e85c5c; font-weight:bold;">4.</span> build kit from files!</button>
                     </div>
                 </div>
 
@@ -550,12 +561,9 @@
                         placeholder="0">
                 </div>
 
-                <!-- Patch type -->
-                <label class="section-label" for="synthPatch">patch type</label>
-                <select name="synthPatch" id="synthPatch">
-                    <option value="drum">drum</option>
-                    <option value="synth" ((if $.Metadata.IsSynthPatch))selected((end))>synth</option>
-                </select>
+                <!-- Patch type (single file mode – synced with multi-upload selector via JS) -->
+                <label class="section-label">patch type</label>
+                <div style="font-size:0.82em; color:#888; margin-bottom:0.3em;">use the selector above (in the multi-upload section) to switch between drum and synth</div>
 
                 <!-- Remove silence (drum only) -->
                 <div id="optionRemoveSilence" ((if $.Metadata.IsSynthPatch))style="display:none;"((end))>
