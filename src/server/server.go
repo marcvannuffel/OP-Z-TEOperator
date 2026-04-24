@@ -611,7 +611,9 @@ audio{display:block;width:100%%;margin:0.5em 0 0.7em;}
 	return
 }
 
-// viewSynthFile serves a single synth .aif for preview or download
+// viewSynthFile serves a single synth .aif for preview or download.
+// Preview (no dl=1): converts .aif to WAV on-the-fly so browsers can play it.
+// Download (dl=1): serves the original .aif file.
 func viewSynthFile(w http.ResponseWriter, r *http.Request) (err error) {
 	resultID := r.URL.Query().Get("id")
 	idxStr := r.URL.Query().Get("idx")
@@ -629,10 +631,24 @@ func viewSynthFile(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 	if download {
+		// Serve original .aif for download
 		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filepath.Base(files[idx])))
+		w.Header().Set("Content-Type", "audio/aiff")
+		http.ServeFile(w, r, files[idx])
+		return
 	}
-	w.Header().Set("Content-Type", "audio/aiff")
-	http.ServeFile(w, r, files[idx])
+	// Preview: convert .aif → WAV on-the-fly for browser compatibility
+	wavPath := files[idx] + "_preview.wav"
+	out, errConv := exec.Command("ffmpeg", "-y", "-i", files[idx], "-f", "wav", wavPath).CombinedOutput()
+	if errConv != nil {
+		log.Errorf("preview wav convert: %s %v", out, errConv)
+		w.Header().Set("Content-Type", "audio/aiff")
+		http.ServeFile(w, r, files[idx])
+		return
+	}
+	defer os.Remove(wavPath)
+	w.Header().Set("Content-Type", "audio/wav")
+	http.ServeFile(w, r, wavPath)
 	return
 }
 
@@ -797,7 +813,9 @@ audio{display:block;width:100%;margin:0.5em 0 0.7em;}
 	return
 }
 
-// viewKitFile serves a single kit file for download or preview
+// viewKitFile serves a single kit file for download or preview.
+// Preview (no dl=1): converts .aif to WAV on-the-fly so browsers can play it.
+// Download (dl=1): serves the original .aif file.
 func viewKitFile(w http.ResponseWriter, r *http.Request) (err error) {
 	resultID := r.URL.Query().Get("id")
 	idxStr := r.URL.Query().Get("idx")
@@ -816,10 +834,25 @@ func viewKitFile(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 	if download {
+		// Serve original .aif for download
 		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filepath.Base(files[idx])))
+		w.Header().Set("Content-Type", "audio/aiff")
+		http.ServeFile(w, r, files[idx])
+		return
 	}
-	w.Header().Set("Content-Type", "audio/aiff")
-	http.ServeFile(w, r, files[idx])
+	// Preview: convert .aif → WAV on-the-fly for browser compatibility
+	wavPath := files[idx] + "_preview.wav"
+	out, errConv := exec.Command("ffmpeg", "-y", "-i", files[idx], "-f", "wav", wavPath).CombinedOutput()
+	if errConv != nil {
+		log.Errorf("preview wav convert: %s %v", out, errConv)
+		// fallback: serve aif anyway
+		w.Header().Set("Content-Type", "audio/aiff")
+		http.ServeFile(w, r, files[idx])
+		return
+	}
+	defer os.Remove(wavPath)
+	w.Header().Set("Content-Type", "audio/wav")
+	http.ServeFile(w, r, wavPath)
 	return
 }
 
