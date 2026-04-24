@@ -517,9 +517,15 @@
                     </div>
                     <div id="synthOptions" class="option-group" style="display:none;">
                         <label class="option-row">
-                            <input type="checkbox" id="monoCheck" checked>
+                            <input type="checkbox" id="compressCheckSynth">
                             <span class="option-label">
                                 <span style="color:#f5c842; font-weight:bold;">2.</span>
+                                <strong>compress?</strong> halve sample rate (+1 oct) → up to ~11.5 s per slot — set pitch −1 oct on OP-Z
+                            </span>
+                        </label>
+                        <label class="option-row" style="margin-top:0.4em;">
+                            <input type="checkbox" id="monoCheck" checked>
+                            <span class="option-label">
                                 <strong>mono:</strong> convert to mono (uncheck to keep stereo)
                             </span>
                         </label>
@@ -785,10 +791,8 @@
             document.getElementById('drumOptions').style.display = 'none';
             document.getElementById('synthOptions').style.display = 'block';
         }
-        if (multiSelectedFiles.length > 0) {
-            multiSelectedFiles = [];
-            updateMultiFileUI();
-        }
+        // Files beim Patch-Wechsel BEHALTEN – nur UI-Text aktualisieren
+        updateMultiFileUI();
     }
 
     (function(Dropzone) {
@@ -873,7 +877,8 @@
                 if (patchType === 'synth') {
                     var monoEl = document.getElementById('monoCheck');
                     var mono = monoEl && monoEl.checked ? '1' : '0';
-                    var compress = document.getElementById('compressCheck').checked ? '1' : '0';
+                    var compressSynthEl = document.getElementById('compressCheckSynth');
+                    var compress = compressSynthEl && compressSynthEl.checked ? '1' : '0';
                     var url = '/multibatch?sessionID=' + encodeURIComponent(multiSessionID)
                         + '&rootNote=' + encodeURIComponent(rootNote)
                         + '&mono=' + mono

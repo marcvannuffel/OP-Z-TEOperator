@@ -56,6 +56,10 @@ var multiUploads map[string][]string // sessionID -> list of uploaded file paths
 var kitResultsLock sync.Mutex
 var kitResults map[string][]string // resultID -> list of .aif file paths
 
+// synthResults keeps generated synth .aif files for the synth result page
+var synthResultsLock sync.Mutex
+var synthResults map[string][]string // resultID -> list of .aif file paths
+
 var rootNoteToFrequency = map[string]float64{
 	"A#": math.Pow(2.0, ((58.0-69.0)/12.0)) * 440.0,
 	"B":  math.Pow(2.0, ((59.0-69.0)/12.0)) * 440.0,
@@ -79,6 +83,7 @@ func Run(port int, sname string) (err error) {
 	uploadsHash = make(map[string]string)
 	multiUploads = make(map[string][]string)
 	kitResults = make(map[string][]string)
+	synthResults = make(map[string][]string)
 
 	os.Mkdir("data", os.ModePerm)
 	os.MkdirAll(ContentDirectory, os.ModePerm)
@@ -229,6 +234,12 @@ func handle(w http.ResponseWriter, r *http.Request) (err error) {
 		return viewKitFile(w, r)
 	} else if r.URL.Path == "/kitzip" {
 		return viewKitZip(w, r)
+	} else if r.URL.Path == "/synthresult" {
+		return viewSynthResult(w, r)
+	} else if r.URL.Path == "/synthfile" {
+		return viewSynthFile(w, r)
+	} else if r.URL.Path == "/synthzip" {
+		return viewSynthZip(w, r)
 	} else if r.URL.Path == "/patch" {
 		return viewPatch(w, r)
 	} else {
@@ -507,26 +518,145 @@ func viewMultiBatch(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	// If only one file, serve directly
-	if len(outFiles) == 1 {
-		w.Header().Set("Content-Type", "audio/aiff")
-		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filepath.Base(outFiles[0])))
-		http.ServeFile(w, r, outFiles[0])
+	// Store results and redirect to synth result page (like kitresult for drums)
+	resultID := fmt.Sprintf("%x", md5.Sum([]byte(sessionID+fmt.Sprintf("%d", time.Now().UnixNano()))))
+
+	// Copy files to a persistent temp dir (not deferred-removed)
+	persistDir, errPersist := ioutil.TempDir("", "synthresult_")
+	if errPersist != nil {
+		err = errPersist
+		return
+	}
+	var persistFiles []string
+	for _, f := range outFiles {
+		dst := filepath.Join(persistDir, filepath.Base(f))
+		if errCp := copyFile(f, dst); errCp == nil {
+			persistFiles = append(persistFiles, dst)
+		}
+	}
+
+	synthResultsLock.Lock()
+	synthResults[resultID] = persistFiles
+	synthResultsLock.Unlock()
+
+	// Auto-clean after 30 minutes
+	go func() {
+		time.Sleep(30 * time.Minute)
+		synthResultsLock.Lock()
+		delete(synthResults, resultID)
+		synthResultsLock.Unlock()
+		os.RemoveAll(persistDir)
+	}()
+
+	http.Redirect(w, r, "/synthresult?id="+resultID, http.StatusFound)
+	return
+}
+
+// viewSynthResult shows the synth batch result page with individual previews + ZIP
+func viewSynthResult(w http.ResponseWriter, r *http.Request) (err error) {
+	resultID := r.URL.Query().Get("id")
+	if resultID == "" {
+		err = fmt.Errorf("no result id")
+		return
+	}
+	synthResultsLock.Lock()
+	files, ok := synthResults[resultID]
+	synthResultsLock.Unlock()
+	if !ok {
+		err = fmt.Errorf("synth result not found or expired")
 		return
 	}
 
-	// Multiple files: create ZIP
-	zipPath := filepath.Join(tmpDir, "synth_patches.zip")
-	cmd := append([]string{"-j", zipPath}, outFiles...)
-	out, errZip := exec.Command("zip", cmd...).CombinedOutput()
+	html := `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>synth results · teoperator op-z edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<style>
+*,*:before,*:after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:17px;}
+body{background:#2e2e2e;color:#c0c0c0;font-family:monospace;padding:0;min-height:100vh;}
+.page{max-width:480px;margin:0 auto;padding:1.2em 1em 3em;}
+h2{font-size:1.4em;color:#e0e0e0;margin-bottom:0.3em;}
+.subtitle{font-size:0.82em;color:#888;margin-bottom:1.2em;}
+.patch{background:#363636;border:1px solid #4a4a4a;border-radius:8px;padding:1em;margin:0.8em 0;}
+.patch-name{font-size:0.95em;color:#e0e0e0;margin-bottom:0.6em;word-break:break-all;}
+audio{display:block;width:100%%;margin:0.5em 0 0.7em;}
+.btn{display:block;width:100%%;padding:0.75em 1em;border-radius:6px;text-decoration:none;font-family:monospace;font-size:0.95em;text-align:center;margin:0.4em 0;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+.btn-dl{background:#20B2AA;color:#fff;border:none;}
+.btn-dl:hover,.btn-dl:active{background:#17938c;color:#fff;}
+.btn-zip{background:#7B68EE;color:#fff;border:none;margin-top:1.2em;}
+.btn-zip:hover,.btn-zip:active{background:#6456cc;color:#fff;}
+.btn-back{background:#3a3a3a;color:#aaa;border:1px solid #555;margin-top:0.6em;}
+.btn-back:hover,.btn-back:active{background:#4a4a4a;color:#e0e0e0;}
+.divider{border:none;border-top:1px dotted #444;margin:1.2em 0;}
+</style></head><body>
+<div class="page">
+<h2>synth results</h2>
+<p class="subtitle">tap to preview · download individually or as ZIP · load into op-z synth slot</p>
+`
+	for i, f := range files {
+		html += fmt.Sprintf(`<div class="patch">
+<div class="patch-name">%s</div>
+<audio controls preload="none" src="/synthfile?id=%s&idx=%d" style="width:100%%;"></audio>
+<a class="btn btn-dl" href="/synthfile?id=%s&idx=%d&dl=1">⬇ download %s</a>
+</div>
+`, filepath.Base(f), resultID, i, resultID, i, filepath.Base(f))
+	}
+
+	html += fmt.Sprintf(`<hr class="divider">
+<a class="btn btn-zip" href="/synthzip?id=%s">⬇ download all as ZIP</a>
+<a class="btn btn-back" href="/">← back to teoperator</a>
+</div></body></html>`, resultID)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprint(w, html)
+	return
+}
+
+// viewSynthFile serves a single synth .aif for preview or download
+func viewSynthFile(w http.ResponseWriter, r *http.Request) (err error) {
+	resultID := r.URL.Query().Get("id")
+	idxStr := r.URL.Query().Get("idx")
+	download := r.URL.Query().Get("dl") == "1"
+	synthResultsLock.Lock()
+	files, ok := synthResults[resultID]
+	synthResultsLock.Unlock()
+	if !ok {
+		err = fmt.Errorf("synth result not found")
+		return
+	}
+	idx, _ := strconv.Atoi(idxStr)
+	if idx < 0 || idx >= len(files) {
+		err = fmt.Errorf("invalid index")
+		return
+	}
+	if download {
+		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filepath.Base(files[idx])))
+	}
+	w.Header().Set("Content-Type", "audio/aiff")
+	http.ServeFile(w, r, files[idx])
+	return
+}
+
+// viewSynthZip creates and serves a ZIP of all synth result files
+func viewSynthZip(w http.ResponseWriter, r *http.Request) (err error) {
+	resultID := r.URL.Query().Get("id")
+	synthResultsLock.Lock()
+	files, ok := synthResults[resultID]
+	synthResultsLock.Unlock()
+	if !ok {
+		err = fmt.Errorf("synth result not found")
+		return
+	}
+	zipPath := filepath.Join(os.TempDir(), "synth_"+resultID+".zip")
+	cmdArgs := append([]string{"-j", zipPath}, files...)
+	out, errZip := exec.Command("zip", cmdArgs...).CombinedOutput()
 	if errZip != nil {
 		log.Errorf("zip: %s %v", out, errZip)
 		err = errZip
 		return
 	}
-
+	defer os.Remove(zipPath)
 	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", `attachment; filename="synth_patches.zip"`)
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="synth_patches_%s.zip"`, resultID[:8]))
 	http.ServeFile(w, r, zipPath)
 	return
 }
@@ -1118,4 +1248,20 @@ func jsonResponse(w http.ResponseWriter, code int, data interface{}) {
 	}
 	log.Debugf("json response: %s", json)
 	fmt.Fprintf(w, "%s\n", json)
+}
+
+// copyFile copies src to dst
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, in)
+	return err
 }
