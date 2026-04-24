@@ -60,6 +60,33 @@ var kitResults map[string][]string // resultID -> list of .aif file paths
 var synthResultsLock sync.Mutex
 var synthResults map[string][]string // resultID -> list of .aif file paths
 
+// KitReport holds metadata for the drum kit result page
+type KitReport struct {
+	InputFiles  int
+	KitsCreated int
+	Compress    bool
+	MaxSec      float64
+	MaxSplices  int
+	BaseName    string
+}
+
+// SynthReport holds metadata for the synth batch result page
+type SynthReport struct {
+	InputFiles    int
+	OutputFiles   int
+	Compress      bool
+	Mono          bool
+	RootNote      string
+	MaxSlotSec    float64
+	EffectiveSec  float64
+}
+
+var kitReportsLock sync.Mutex
+var kitReports map[string]KitReport // resultID -> report
+
+var synthReportsLock sync.Mutex
+var synthReports map[string]SynthReport // resultID -> report
+
 var rootNoteToFrequency = map[string]float64{
 	"A#": math.Pow(2.0, ((58.0-69.0)/12.0)) * 440.0,
 	"B":  math.Pow(2.0, ((59.0-69.0)/12.0)) * 440.0,
@@ -84,6 +111,8 @@ func Run(port int, sname string) (err error) {
 	multiUploads = make(map[string][]string)
 	kitResults = make(map[string][]string)
 	synthResults = make(map[string][]string)
+	kitReports = make(map[string]KitReport)
+	synthReports = make(map[string]SynthReport)
 
 	os.Mkdir("data", os.ModePerm)
 	os.MkdirAll(ContentDirectory, os.ModePerm)
@@ -539,12 +568,32 @@ func viewMultiBatch(w http.ResponseWriter, r *http.Request) (err error) {
 	synthResults[resultID] = persistFiles
 	synthResultsLock.Unlock()
 
+	// Store report metadata
+	effSec := 5.75
+	if compress {
+		effSec = 11.5
+	}
+	synthReportsLock.Lock()
+	synthReports[resultID] = SynthReport{
+		InputFiles:   len(fnames),
+		OutputFiles:  len(persistFiles),
+		Compress:     compress,
+		Mono:         forceMono,
+		RootNote:     rootNote,
+		MaxSlotSec:   5.75,
+		EffectiveSec: effSec,
+	}
+	synthReportsLock.Unlock()
+
 	// Auto-clean after 30 minutes
 	go func() {
 		time.Sleep(30 * time.Minute)
 		synthResultsLock.Lock()
 		delete(synthResults, resultID)
 		synthResultsLock.Unlock()
+		synthReportsLock.Lock()
+		delete(synthReports, resultID)
+		synthReportsLock.Unlock()
 		os.RemoveAll(persistDir)
 	}()
 
@@ -566,6 +615,9 @@ func viewSynthResult(w http.ResponseWriter, r *http.Request) (err error) {
 		err = fmt.Errorf("synth result not found or expired")
 		return
 	}
+	synthReportsLock.Lock()
+	report, hasReport := synthReports[resultID]
+	synthReportsLock.Unlock()
 
 	html := `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>synth results · teoperator op-z edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -576,6 +628,9 @@ body{background:#2e2e2e;color:#c0c0c0;font-family:monospace;padding:0;min-height
 .page{max-width:480px;margin:0 auto;padding:1.2em 1em 3em;}
 h2{font-size:1.4em;color:#e0e0e0;margin-bottom:0.3em;}
 .subtitle{font-size:0.82em;color:#888;margin-bottom:1.2em;}
+.report{background:#1e2e1e;border:1px solid #3a5a3a;border-radius:8px;padding:0.9em 1em;margin:0 0 1.2em;font-size:0.82em;line-height:1.7;color:#b8d8b8;}
+.report strong{color:#4fc97e;}
+.report .warn{color:#f5c842;}
 .patch{background:#363636;border:1px solid #4a4a4a;border-radius:8px;padding:1em;margin:0.8em 0;}
 .patch-name{font-size:0.95em;color:#e0e0e0;margin-bottom:0.6em;word-break:break-all;}
 audio{display:block;width:100%%;margin:0.5em 0 0.7em;}
@@ -592,6 +647,31 @@ audio{display:block;width:100%%;margin:0.5em 0 0.7em;}
 <h2>synth results</h2>
 <p class="subtitle">tap to preview · download individually or as ZIP · load into op-z synth slot</p>
 `
+	if hasReport {
+		compressStr := "off"
+		compressNote := ""
+		if report.Compress {
+			compressStr = `<span class="warn">on</span>`
+			compressNote = fmt.Sprintf(` → effective playback up to <strong>%.1f s</strong> per slot (set pitch −1 oct on op-z)`, report.EffectiveSec)
+		}
+		monoStr := "mono"
+		if !report.Mono {
+			monoStr = "stereo"
+		}
+		skipped := report.InputFiles - report.OutputFiles
+		skippedStr := ""
+		if skipped > 0 {
+			skippedStr = fmt.Sprintf(` · <span class="warn">%d skipped (convert error)</span>`, skipped)
+		}
+		html += fmt.Sprintf(`<div class="report">
+<strong>what was done:</strong><br>
+converted <strong>%d</strong> audio file(s) → <strong>%d</strong> synth .aif patch(es)%s<br>
+op-z synth slot limit: <strong>%.2f s</strong> per patch%s<br>
+root note: <strong>%s</strong> · channel: <strong>%s</strong><br>
+compress: %s
+</div>
+`, report.InputFiles, report.OutputFiles, skippedStr, report.MaxSlotSec, compressNote, report.RootNote, monoStr, compressStr)
+	}
 	for i, f := range files {
 		html += fmt.Sprintf(`<div class="patch">
 <div class="patch-name">%s</div>
@@ -732,12 +812,27 @@ func viewMultiDrumKits(w http.ResponseWriter, r *http.Request) (err error) {
 	kitResults[resultID] = outFiles
 	kitResultsLock.Unlock()
 
+	// Store report metadata
+	kitReportsLock.Lock()
+	kitReports[resultID] = KitReport{
+		InputFiles:  len(fnames),
+		KitsCreated: len(outFiles),
+		Compress:    compress,
+		MaxSec:      12.0,
+		MaxSplices:  24,
+		BaseName:    baseName,
+	}
+	kitReportsLock.Unlock()
+
 	// Auto-cleanup after 30 minutes
 	go func() {
 		time.Sleep(30 * time.Minute)
 		kitResultsLock.Lock()
 		delete(kitResults, resultID)
 		kitResultsLock.Unlock()
+		kitReportsLock.Lock()
+		delete(kitReports, resultID)
+		kitReportsLock.Unlock()
 		os.RemoveAll(resultDir)
 	}()
 
@@ -759,9 +854,12 @@ func viewKitResult(w http.ResponseWriter, r *http.Request) (err error) {
 		err = fmt.Errorf("result not found or expired")
 		return
 	}
+	kitReportsLock.Lock()
+	report, hasReport := kitReports[resultID]
+	kitReportsLock.Unlock()
 
 	type KitEntry struct {
-		Name string
+		Name  string
 		Index int
 	}
 	var entries []KitEntry
@@ -769,19 +867,22 @@ func viewKitResult(w http.ResponseWriter, r *http.Request) (err error) {
 		entries = append(entries, KitEntry{Name: filepath.Base(f), Index: i})
 	}
 
-	html := `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>kit results · teoperator</title>
+	html := `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>kit results · teoperator op-z edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
 *,*:before,*:after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:16px;}
+html{font-size:17px;}
 body{background:#2e2e2e;color:#c0c0c0;font-family:monospace;padding:0;min-height:100vh;}
 .page{max-width:480px;margin:0 auto;padding:1.2em 1em 3em;}
 h2{font-size:1.4em;color:#e0e0e0;margin-bottom:0.3em;}
-.subtitle{font-size:0.8em;color:#888;margin-bottom:1.2em;}
+.subtitle{font-size:0.82em;color:#888;margin-bottom:1.2em;}
+.report{background:#1e2e1e;border:1px solid #3a5a3a;border-radius:8px;padding:0.9em 1em;margin:0 0 1.2em;font-size:0.82em;line-height:1.7;color:#b8d8b8;}
+.report strong{color:#4fc97e;}
+.report .warn{color:#f5c842;}
 .kit{background:#363636;border:1px solid #4a4a4a;border-radius:8px;padding:1em;margin:0.8em 0;}
 .kit-name{font-size:0.95em;color:#e0e0e0;margin-bottom:0.6em;word-break:break-all;}
-audio{display:block;width:100%;margin:0.5em 0 0.7em;}
-.btn{display:block;width:100%;padding:0.75em 1em;border-radius:6px;text-decoration:none;font-family:monospace;font-size:0.95em;text-align:center;margin:0.4em 0;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+audio{display:block;width:100%%;margin:0.5em 0 0.7em;}
+.btn{display:block;width:100%%;padding:0.75em 1em;border-radius:6px;text-decoration:none;font-family:monospace;font-size:0.95em;text-align:center;margin:0.4em 0;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
 .btn-dl{background:#20B2AA;color:#fff;border:none;}
 .btn-dl:hover,.btn-dl:active{background:#17938c;color:#fff;}
 .btn-zip{background:#7B68EE;color:#fff;border:none;margin-top:1.2em;}
@@ -794,6 +895,21 @@ audio{display:block;width:100%;margin:0.5em 0 0.7em;}
 <h2>kit results</h2>
 <p class="subtitle">tap to preview · download individually or as ZIP</p>
 `
+	if hasReport {
+		compressStr := "off"
+		compressNote := ""
+		if report.Compress {
+			compressStr = `<span class="warn">on</span>`
+			compressNote = ` → effective playback up to <strong>24 s</strong> per kit (set pitch −1 oct on op-z)`
+		}
+		html += fmt.Sprintf(`<div class="report">
+<strong>what was done:</strong><br>
+grouped <strong>%d</strong> sample(s) → <strong>%d</strong> drum kit(s)<br>
+op-z limits per kit: max <strong>%d splices</strong> · max <strong>%.0f s</strong> total%s<br>
+compress: %s
+</div>
+`, report.InputFiles, report.KitsCreated, report.MaxSplices, report.MaxSec, compressNote, compressStr)
+	}
 	for i, entry := range entries {
 		html += fmt.Sprintf(`<div class="kit">
 <div class="kit-name">%s</div>
